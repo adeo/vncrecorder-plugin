@@ -11,6 +11,8 @@ These instructions will get you a copy of the project up and running on your loc
 http://www.unixuser.org/~euske/vnc2swf/
 http://www.unixuser.org/~euske/python/vnc2flv/index.html
 
+vncserver password stored in file in clear text
+
 vnc2flv
 ```
 sudo apt install tightvncserver
