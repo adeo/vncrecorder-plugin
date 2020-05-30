@@ -174,6 +174,7 @@ public class VncRecorderBuildWrapper extends BuildWrapper {
 			return null;
 		}
 		String vncServReplaced = Util.replaceMacro(vncServ,build.getEnvironment(listener));
+
 		if (vncServReplaced.indexOf(":") > 0 && vncServReplaced.split(":")[1].length() == 4 && vncServReplaced.split(":")[1].startsWith("59") )
 		{
 			vncServReplaced = vncServReplaced.replace(":59", ":");
@@ -204,7 +205,8 @@ public class VncRecorderBuildWrapper extends BuildWrapper {
 		}
 
 		File artifactsDir = build.getArtifactsDir();
-		listener.getLogger().print(build.getUrl());
+		listener.getLogger().println(build.getUrl());
+
 		if(!artifactsDir.exists())
 		{
 			if (!artifactsDir.mkdir())
@@ -222,6 +224,7 @@ public class VncRecorderBuildWrapper extends BuildWrapper {
 		final File outFileHtml = new File(outFileSwf.getAbsolutePath().replace(".swf", ".html"));
 
 		final Date from = new Date();
+
 		final Future<Integer> recordState = vr.record(vncServReplaced, outFileSwf.getAbsolutePath(), vncPasswFile,vnc2swf);
 
 		return new Environment() {
@@ -236,6 +239,7 @@ public class VncRecorderBuildWrapper extends BuildWrapper {
 			public boolean tearDown(AbstractBuild build, BuildListener listener)
 					throws IOException, InterruptedException {
 				final Date to = new Date();
+
 				if (recordState != null)
 				{	
 					recordState.cancel(true);
@@ -307,7 +311,7 @@ public class VncRecorderBuildWrapper extends BuildWrapper {
 		public String getDefaultVnc2swf()
 		{
 			String ret = CANT_FIND_VNC2SWF;
-			String[] coms = new String []{"vnc2swf","vnc2swf.py"};
+			String[] coms = new String []{"vnc2swf","vnc2swf.py,flvrec.py"};
 			Process process;
 			for (String s : coms) 
 			{

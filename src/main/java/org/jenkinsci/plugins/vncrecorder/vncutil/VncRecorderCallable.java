@@ -26,6 +26,8 @@ package org.jenkinsci.plugins.vncrecorder.vncutil;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
@@ -44,16 +46,18 @@ public class VncRecorderCallable extends VncProcess implements Callable<Integer>
 		this.vncPasswFile = vncPasswFile;
 		this.vnc2swfPath = (vnc2swfPath_ == null || vnc2swfPath_.isEmpty()) ? "vnc2swf" : vnc2swfPath_;
 	}
-
 	public Integer call() 
 	{
-		
 		//				String[] com = new String []{"/usr/bin/flvrec.py", "-r1","-o", targetPath, vncServ};
 		//String[] com = new String []{"vnc2swf","-o", targetPath,"-P", "/home/dimitri/.vnc/passwd_status", "-t", "swf5", "-n", "-e", "0", vncServ};
 		String[] com = new String []{vnc2swfPath,"-o", targetPath, "-t", "swf7", "-n", "-e", "0", vncServ};
 		if (vncPasswFile != null)
 		{
-			com = new String []{vnc2swfPath,"-o", targetPath,"-P", vncPasswFile.getAbsolutePath(), "-t", "swf7", "-n", "-e", "0", vncServ};
+			if(vnc2swfPath.contains("flvrec")) {
+				com = new String []{vnc2swfPath,"-o", targetPath,"-P", vncPasswFile.getAbsolutePath(), vncServ};
+			}else {
+				com = new String []{vnc2swfPath,"-o", targetPath,"-P", vncPasswFile.getAbsolutePath(), "-t", "swf7", "-n", "-e", "0", vncServ};	
+			}
 		}
 
 		try {
@@ -68,20 +72,20 @@ public class VncRecorderCallable extends VncProcess implements Callable<Integer>
 					rc = proc.waitFor();
 				} catch (InterruptedException e)
 				{
-					loggerStream.println("Command: " + Arrays.toString(com) + " canceled");
+					loggerStream.println("callable-> Command: " + Arrays.toString(com) + " canceled");
 					stop();
 					return -999;
 				}
 				catch (Exception e)
 				{
-					loggerStream.println("Command: " + Arrays.toString(com) + " failed" + e.getMessage());
+					loggerStream.println("callable-> Command: " + Arrays.toString(com) + " failed" + e.getMessage());
 					if(terminatorServ.submit(term).isDone())
-					  loggerStream.println("Killed");
+					  loggerStream.println("callable-> Killed");
 					return -999;
 				}
 				if (rc != 0)
 				{
-					loggerStream.println("Command: " + Arrays.toString(com) + " returned: " + rc + ", trying " + i + " from " + 50);
+					loggerStream.println("callable-> Command: " + Arrays.toString(com) + " returned: " + rc + ", trying " + i + " from " + 50);
 					String line;
 					BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
 					BufferedReader errIn = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -98,7 +102,7 @@ public class VncRecorderCallable extends VncProcess implements Callable<Integer>
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			loggerStream.println("Error in VncRecorderCallable" + e.getMessage());
+			loggerStream.println("callable-> Error in VncRecorderCallable" + e.getMessage());
 		}
 		return -1;
 	}
